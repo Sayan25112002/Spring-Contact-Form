@@ -1,6 +1,5 @@
 package com.online.ContactBook.dto.requestDto;
 
-import jakarta.persistence.Column;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -10,7 +9,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class MemberRequestDto {
+public class SignUpRequestDto {
 
     private String firstName;
 
