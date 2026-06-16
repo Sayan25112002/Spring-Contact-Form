@@ -2,8 +2,8 @@ package com.online.ContactBook.service;
 
 import com.online.ContactBook.dto.requestDto.LoginRequestDto;
 import com.online.ContactBook.dto.requestDto.SignUpRequestDto;
-import com.online.ContactBook.dto.respnseDto.LoginResponseDto;
-import com.online.ContactBook.dto.respnseDto.SignUpResponseDto;
+import com.online.ContactBook.dto.responseDto.LoginResponseDto;
+import com.online.ContactBook.dto.responseDto.SignUpResponseDto;
 
 public interface AuthenticationService {
 

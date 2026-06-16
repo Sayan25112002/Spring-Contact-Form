@@ -1,4 +1,4 @@
-package com.online.ContactBook.dto.respnseDto;
+package com.online.ContactBook.dto.responseDto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

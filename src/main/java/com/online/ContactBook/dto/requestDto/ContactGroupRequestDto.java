@@ -1,18 +1,17 @@
-package com.online.ContactBook.dto.respnseDto;
+package com.online.ContactBook.dto.requestDto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.stereotype.Component;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class LoginResponseDto {
+public class ContactGroupRequestDto {
 
-    private Long id;
-
-    private String jwt;
+    private String groupName;
 
 }

@@ -2,8 +2,8 @@ package com.online.ContactBook.service.implementation;
 
 import com.online.ContactBook.dto.requestDto.LoginRequestDto;
 import com.online.ContactBook.dto.requestDto.SignUpRequestDto;
-import com.online.ContactBook.dto.respnseDto.LoginResponseDto;
-import com.online.ContactBook.dto.respnseDto.SignUpResponseDto;
+import com.online.ContactBook.dto.responseDto.LoginResponseDto;
+import com.online.ContactBook.dto.responseDto.SignUpResponseDto;
 import com.online.ContactBook.entity.Member;
 import com.online.ContactBook.entity.type.Role;
 import com.online.ContactBook.repository.MemberRepository;
