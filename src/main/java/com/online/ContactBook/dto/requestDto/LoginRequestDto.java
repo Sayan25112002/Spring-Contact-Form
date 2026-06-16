@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @Builder
 public class LoginRequestDto{
 
-    private String email;
+    private String username;
 
     private String password;
 

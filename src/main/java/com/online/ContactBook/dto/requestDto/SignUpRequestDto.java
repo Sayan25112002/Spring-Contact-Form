@@ -1,14 +1,13 @@
 package com.online.ContactBook.dto.requestDto;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
+@Getter
+@Setter
 public class SignUpRequestDto {
 
     private String firstName;
@@ -17,7 +16,7 @@ public class SignUpRequestDto {
 
     private String lastName;
 
-    private String email;
+    private String username;
 
     private String phone;
 
