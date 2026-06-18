@@ -179,9 +179,9 @@ public class ContactServiceImpl implements ContactService {
     }
 
     @Override
-    @Transactional
     public void deletePersonalDetail(Long id) {
-        PersonalDetail personalDetail = personalDetailRepository.findById(id).orElseThrow(()-> new EntityNotFoundException("Personal Detail Not Found"));
+        PersonalDetail personalDetail = personalDetailRepository.findById(id).orElseThrow(()->
+                new EntityNotFoundException("Personal Detail Not Found"));
         List<ContactGroup> contactGroups = new ArrayList<>(personalDetail.getContactGroups());
         for (ContactGroup contactGroup : contactGroups) {
             deleteContactGroupById(contactGroup.getId());
@@ -194,31 +194,25 @@ public class ContactServiceImpl implements ContactService {
         personalDetailRepository.delete(personalDetail);
     }
 
-    @Transactional
     @Override
     public void deleteContactGroupById(Long id) {
-        ContactGroup contactGroup = contactGroupRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Contact Group Not Found"));
+        ContactGroup contactGroup = contactGroupRepository.findById(id).orElseThrow(() ->
+                new EntityNotFoundException("Contact Group Not Found"));
         List<Contact> contacts = new ArrayList<>(contactGroup.getContacts());
         for (Contact contact : contacts) {
-            contact.getContactGroups().clear();
             deleteContactById(contact.getId());
         }
         contactGroupRepository.delete(contactGroup);
     }
 
     @Override
-    @Transactional
     public void deleteContactById(Long id) {
-        Contact contact = contactRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Contact Not Found"));
-        List<ContactDetail> contactDetails = new ArrayList<>(contact.getContactDetails());
-        for (ContactDetail contactDetail : contactDetails) {
-            deleteContactDetailById(contactDetail.getId());
-        }
+        Contact contact = contactRepository.findById(id).orElseThrow(() ->
+                new EntityNotFoundException("Contact Not Found"));
         contactRepository.delete(contact);
     }
 
 
-    @Transactional
     @Override
     public void deleteContactDetailById(Long id) {
         if(contactDetailRepository.existsById(id)){

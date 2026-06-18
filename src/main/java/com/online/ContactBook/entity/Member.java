@@ -46,7 +46,9 @@ public class Member implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(() -> role.name());
+        return List.of(
+                () -> "ROLE_" + role.name()
+        );
     }
 
     @Override
