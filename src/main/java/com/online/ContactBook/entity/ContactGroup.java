@@ -2,29 +2,33 @@ package com.online.ContactBook.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import java.util.List;
 
 @Entity
 @Getter
 @Setter
+@AllArgsConstructor
+@NoArgsConstructor
 public class ContactGroup {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(unique = true)
+    @Column(nullable = false)
     private String groupName;
 
     @ManyToOne
-    @JoinColumn(name = "memberId")
+    @JoinColumn(name = "personalDetailId")
     @JsonIgnore
-    private Member member;
+    private PersonalDetail personalDetail;
 
-    @ManyToMany(mappedBy = "contactGroup")
+    @ManyToMany(
+            mappedBy = "contactGroups"
+    )
+    @JsonIgnore
     private List<Contact> contacts;
 
 }

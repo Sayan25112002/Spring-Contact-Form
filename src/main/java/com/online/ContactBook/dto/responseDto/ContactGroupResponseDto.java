@@ -19,8 +19,6 @@ public class ContactGroupResponseDto {
 
     private String groupName;
 
-    private Member member;
-
-    private List<Contact> contacts;
+    private List<ContactResponseDto> contactResponseDtos;
 
 }

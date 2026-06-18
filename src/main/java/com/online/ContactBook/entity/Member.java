@@ -1,5 +1,6 @@
 package com.online.ContactBook.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.online.ContactBook.entity.type.Role;
 import jakarta.persistence.*;
 import lombok.*;
@@ -57,5 +58,9 @@ public class Member implements UserDetails {
     public String getPassword() {
         return password;
     }
+
+    @OneToOne(mappedBy = "member", cascade = CascadeType.ALL)
+    @JsonIgnore
+    private PersonalDetail personalDetail;
 
 }

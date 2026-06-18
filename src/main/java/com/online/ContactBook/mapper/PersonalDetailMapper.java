@@ -5,16 +5,22 @@ import com.online.ContactBook.dto.responseDto.PersonalDetailResponseDto;
 import com.online.ContactBook.entity.PersonalDetail;
 import jakarta.persistence.ManyToOne;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 
 import java.util.List;
 
-@Mapper(componentModel = "spring")
+@Mapper(
+        componentModel = "spring",
+        uses = ContactGroupMapper.class
+)
 public interface PersonalDetailMapper {
 
     PersonalDetail toPersonalDetail(PersonalDetailRequestDto personalDetailRequestDto);
 
+    @Mapping(source = "contactGroups", target = "contactGroupResponseDtoList")
     PersonalDetailResponseDto toPersonalDetailResponseDto(PersonalDetail personalDetail);
 
+    @Mapping(source = "contactGroups", target = "contactGroupResponseDtoList")
     List<PersonalDetailResponseDto> toPersonalDetailResponseDtos(List<PersonalDetail> personalDetails);
 
 }

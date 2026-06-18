@@ -1,14 +1,19 @@
 package com.online.ContactBook.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import jakarta.validation.Valid;
+import lombok.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
 @Getter
 @Setter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class PersonalDetail {
 
     @Id
@@ -36,7 +41,19 @@ public class PersonalDetail {
 
     private String address;
 
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "personalDetail")
-    private List<ContactGroup> contactGroups;
+    @OneToOne
+    @JoinColumn(name = "memberId")
+    @JsonIgnore
+    private Member member;
+
+    @OneToMany(
+            cascade = CascadeType.ALL,
+            mappedBy = "personalDetail",
+            orphanRemoval = true
+    )
+    @Valid
+    @Builder.Default
+    @JsonIgnore
+    private List<ContactGroup> contactGroups=new ArrayList<>();
 
 }

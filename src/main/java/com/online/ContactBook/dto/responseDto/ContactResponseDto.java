@@ -19,8 +19,6 @@ public class ContactResponseDto {
 
     private String image;
 
-    private List<ContactGroupResponseDto> contactGroupResponseDtos;
-
     private List<ContactDetailResponseDto> contactDetailResponseDtos;
 
 }
