@@ -3,14 +3,12 @@ package com.online.ContactBook.controller;
 import com.online.ContactBook.dto.requestDto.LoginRequestDto;
 import com.online.ContactBook.dto.requestDto.SignUpRequestDto;
 import com.online.ContactBook.dto.responseDto.LoginResponseDto;
+import com.online.ContactBook.dto.responseDto.RefreshTokenResponseDto;
 import com.online.ContactBook.dto.responseDto.SignUpResponseDto;
 import com.online.ContactBook.service.AuthenticationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/auth")
@@ -26,6 +24,24 @@ public class MemberController {
 
     @PostMapping("/login")
     public ResponseEntity<LoginResponseDto> login(@RequestBody LoginRequestDto loginRequestDto) {
-        return ResponseEntity.ok().body(authenticationService.login(loginRequestDto));
+        LoginResponseDto loginResponseDto = authenticationService.login(loginRequestDto);
+        return ResponseEntity.ok()
+                .header("Authorization","Bearer "+loginResponseDto.getAccessToken())
+                .header("Refresh-Token",loginResponseDto.getRefreshToken())
+                .body(loginResponseDto);
+    }
+
+    @PostMapping("/refresh")
+    public ResponseEntity<RefreshTokenResponseDto> refresh(@RequestHeader("Refresh-Token")  String refreshToken) {
+        RefreshTokenResponseDto tokenResponseDto = authenticationService.refreshAccessToken(refreshToken);
+        return ResponseEntity.ok()
+                .header("Authorization","Bearer "+tokenResponseDto.getAccessToken())
+                .body(tokenResponseDto);
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<String> logout() {
+        authenticationService.logout();
+        return ResponseEntity.ok("Successfully logged out");
     }
 }

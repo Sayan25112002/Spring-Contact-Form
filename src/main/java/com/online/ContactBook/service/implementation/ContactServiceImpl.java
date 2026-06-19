@@ -84,6 +84,9 @@ public class ContactServiceImpl implements ContactService {
                 .build();
         Contact contact = contactMapper.toContact(contactRequestDto1);
         List<ContactGroup> contactGroups = contactGroupRepository.findAllById(contactGroupIds);
+        if (contactGroups.size() != contactGroupIds.size()) {
+            throw new EntityNotFoundException("One or more Contact Groups not found");
+        }
         contact.setContactGroups(contactGroups);
         Contact savedContact = contactRepository.save(contact);
         return contactMapper.toContactResponseDto(savedContact);

@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDate;
 import java.util.Date;
 
 @Component
@@ -27,11 +28,19 @@ public class AuthUtil {
                 .claim("memberId",member.getId().toString())
                 .claim("role",member.getRole().toString())
                 .issuedAt(new Date())
-                .expiration(new Date(System.currentTimeMillis()+1000*60*10))
+                .expiration(new Date(System.currentTimeMillis() + 1000L*60*2))
                 .signWith(getSecretKey())
                 .compact();
     }
 
+    public String generateRefreshToken(Member member) {
+        return Jwts.builder()
+                .subject(member.getUsername())
+                .issuedAt(new Date())
+                .expiration(new Date(System.currentTimeMillis()+1000L*60*60*24*7))
+                .signWith(getSecretKey())
+                .compact();
+    }
 
     public String getMemberNameFromToken(String token){
         Claims claims = Jwts.parser()
@@ -40,5 +49,27 @@ public class AuthUtil {
                 .parseSignedClaims(token)
                 .getPayload();
         return claims.getSubject();
+    }
+
+    public Date getExpirationDateFromToken(String token){
+        Claims claims = Jwts.parser()
+                .verifyWith(getSecretKey())
+                .build()
+                .parseSignedClaims(token)
+                .getPayload();
+        return claims.getExpiration();
+    }
+
+    public boolean isTokenExpired(String token){
+        try{
+            Claims claims = Jwts.parser()
+                    .verifyWith(getSecretKey())
+                    .build()
+                    .parseSignedClaims(token)
+                    .getPayload();
+            return claims.getExpiration().before(new Date());
+        }catch (Exception e){
+            return true;
+        }
     }
 }
