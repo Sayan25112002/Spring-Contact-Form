@@ -98,21 +98,5 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         return new RefreshTokenResponseDto(newAccessToken);
     }
 
-    @Override
-    public void logout() {
-        HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
-        String authHeader = request.getHeader("Authorization");
-        if(authHeader == null || !authHeader.startsWith("Bearer ")){
-            throw new BadCredentialsException("Invalid Token/Token Not Found");
-        }
-        String token = authHeader.substring(7);
-        AccessToken accessToken = accessTokenRepository
-                .findByAccessToken(token)
-                .orElseThrow(()->new BadCredentialsException("No Token Found"));
-        accessToken.setRevoked(true);
-        accessTokenRepository.save(accessToken);
-        SecurityContextHolder.clearContext();
-
-    }
 
 }

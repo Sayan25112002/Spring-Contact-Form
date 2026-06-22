@@ -14,6 +14,4 @@ public interface AuthenticationService {
 
     RefreshTokenResponseDto refreshAccessToken(String refreshToken);
 
-    void logout();
-
 }

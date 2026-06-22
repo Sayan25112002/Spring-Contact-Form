@@ -93,7 +93,7 @@ public class ContactServiceImpl implements ContactService {
     }
 
     private String saveImage(MultipartFile imageFile) throws IOException {
-        String uploadDir = System.getProperty("user.dir")+"\\src\\main\\resources\\webapp\\images";
+        String uploadDir = System.getProperty("user.dir")+"\\src\\main\\resources\\webapp\\images\\";
         Files.createDirectories(Paths.get(uploadDir));
         String imageFilePath = System.currentTimeMillis() + "_" + imageFile.getOriginalFilename();
         Path path = Paths.get(uploadDir, imageFilePath);

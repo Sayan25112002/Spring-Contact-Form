@@ -39,9 +39,4 @@ public class MemberController {
                 .body(tokenResponseDto);
     }
 
-    @PostMapping("/logout")
-    public ResponseEntity<String> logout() {
-        authenticationService.logout();
-        return ResponseEntity.ok("Successfully logged out");
-    }
 }
