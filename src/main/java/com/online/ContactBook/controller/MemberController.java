@@ -28,6 +28,7 @@ public class MemberController {
         return ResponseEntity.ok()
                 .header("Authorization","Bearer "+loginResponseDto.getAccessToken())
                 .header("Refresh-Token",loginResponseDto.getRefreshToken())
+                .header("Device-ID",loginResponseDto.getDeviceId())
                 .body(loginResponseDto);
     }
 

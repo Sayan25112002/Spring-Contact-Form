@@ -1,9 +1,6 @@
 package com.online.ContactBook.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -19,9 +16,14 @@ public class AccessToken {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(columnDefinition = "TEXT")
     private String accessToken;
 
     private Date expiresIn;
+
+    private String deviceId;
+
+    private Long memberId;
 
     private Boolean revoked;
 

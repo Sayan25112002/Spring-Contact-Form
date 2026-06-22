@@ -21,9 +21,13 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
+
+import java.util.List;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -34,6 +38,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     private final AuthUtil authUtil;
     private final MemberRepository memberRepository;
     private final AccessTokenRepository accessTokenRepository;
+    private final AccessDeniedHandler accessDeniedHandler;
 
     @Override
     public SignUpResponseDto signUp(SignUpRequestDto signUpRequestDto) {
@@ -65,6 +70,9 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
     @Override
     public LoginResponseDto login(LoginRequestDto loginRequestDto) {
+        if(!memberRepository.existsByUsername(loginRequestDto.getUsername())){
+            throw new BadCredentialsException("Email or Password is invalid/User Not Found");
+        }
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         loginRequestDto.getUsername(),
@@ -72,18 +80,35 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                 )
         );
         Member member = (Member) authentication.getPrincipal();
+        List<AccessToken> activeTokens = accessTokenRepository.findByMemberIdAndRevokedFalse(member.getId());
+        for(AccessToken oldAccessToken : activeTokens){
+            oldAccessToken.setRevoked(true);
+        }
+        accessTokenRepository.saveAll(activeTokens);
+        String deviceId = member.getDeviceId();
+        if(deviceId==null){
+            deviceId = UUID.randomUUID().toString();
+            member.setDeviceId(deviceId);
+            memberRepository.save(member);
+        }
         String accessToken = authUtil.generateAccessToken(member);
         String refreshToken = authUtil.generateRefreshToken(member);
         AccessToken accessToken1 = new AccessToken();
         accessToken1.setAccessToken(accessToken);
         accessToken1.setExpiresIn(authUtil.getExpirationDateFromToken(accessToken));
         accessToken1.setRevoked(false);
+        accessToken1.setDeviceId(deviceId);
+        accessToken1.setMemberId(member.getId());
         accessTokenRepository.save(accessToken1);
-        return new LoginResponseDto(member.getId(),accessToken,refreshToken);
+        return new LoginResponseDto(member.getId(),accessToken,refreshToken,deviceId);
     }
 
     @Override
     public RefreshTokenResponseDto refreshAccessToken(String refreshToken) {
+        String tokenType = authUtil.getTokenType(refreshToken);
+        if(!"REFRESH".equals(tokenType)){
+            throw new BadCredentialsException("Only Refresh Token is supported");
+        }
         if(refreshToken==null || authUtil.isTokenExpired(refreshToken)){
             throw new BadCredentialsException("Invalid Refresh Token");
         }
@@ -94,6 +119,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         accessToken1.setAccessToken(newAccessToken);
         accessToken1.setExpiresIn(authUtil.getExpirationDateFromToken(newAccessToken));
         accessToken1.setRevoked(false);
+        accessToken1.setDeviceId(member.getDeviceId());
+        accessToken1.setMemberId(member.getId());
         accessTokenRepository.save(accessToken1);
         return new RefreshTokenResponseDto(newAccessToken);
     }

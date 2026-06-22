@@ -25,6 +25,7 @@ public class AuthUtil {
     public String generateAccessToken(Member member) {
         return Jwts.builder()
                 .subject(member.getUsername())
+                .claim("tokenType","ACCESS")
                 .claim("memberId",member.getId().toString())
                 .claim("role",member.getRole().toString())
                 .issuedAt(new Date())
@@ -35,6 +36,7 @@ public class AuthUtil {
 
     public String generateRefreshToken(Member member) {
         return Jwts.builder()
+                .claim("tokenType","REFRESH")
                 .subject(member.getUsername())
                 .issuedAt(new Date())
                 .expiration(new Date(System.currentTimeMillis()+1000L*60*60*24*7))
@@ -71,5 +73,14 @@ public class AuthUtil {
         }catch (Exception e){
             return true;
         }
+    }
+
+    public String getTokenType(String token){
+        Claims claims = Jwts.parser()
+                .verifyWith(getSecretKey())
+                .build()
+                .parseSignedClaims(token)
+                .getPayload();
+        return claims.get("tokenType", String.class);
     }
 }

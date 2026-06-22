@@ -70,6 +70,11 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             writeErrorMessage(request,response, "JWT Token already revoked");
             return;
         }
+        String deviceId = request.getHeader("Device-ID");
+        if(deviceId==null||!deviceId.equals(accessToken.getDeviceId())) {
+            writeErrorMessage(request,response, "Token not Valid for this device");
+            return;
+        }
         String memberName = authUtil.getMemberNameFromToken(token);
         if (memberName != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             Member member = memberRepository.findByUsername(memberName).orElseThrow();

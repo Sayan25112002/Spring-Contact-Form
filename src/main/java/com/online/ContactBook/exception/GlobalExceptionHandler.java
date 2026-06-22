@@ -11,6 +11,7 @@ import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -27,40 +28,34 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(apiError, apiError.getStatus());
     }
 
-    @ExceptionHandler(AuthenticationException.class)
-    public ResponseEntity<ApiError> handleAuthenticationException(AuthenticationException ex){
-        ApiError apiError = new ApiError(ex.getMessage(), HttpStatus.UNAUTHORIZED);
-        return new ResponseEntity<>(apiError, apiError.getStatus());
-    }
-
     @ExceptionHandler(UsernameNotFoundException.class)
     public ResponseEntity<ApiError> handleUsernameNotFoundException(UsernameNotFoundException ex){
         ApiError apiError = new ApiError(ex.getMessage(), HttpStatus.UNAUTHORIZED);
-        return new ResponseEntity<>(apiError, apiError.getStatus());
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(apiError);
+    }
+
+    @ExceptionHandler(NoResourceFoundException.class)
+    public ResponseEntity<ApiError> handleNoResourceFoundException(NoResourceFoundException ex) {
+        ApiError apiError = new ApiError(ex.getMessage(), HttpStatus.NOT_FOUND);
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(apiError);
     }
 
     @ExceptionHandler(AccessDeniedException.class)
     public ResponseEntity<ApiError> handleAccessDeniedException(AccessDeniedException ex){
         ApiError apiError = new ApiError(ex.getMessage(), HttpStatus.FORBIDDEN);
-        return new ResponseEntity<>(apiError, apiError.getStatus());
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(apiError);
     }
 
-    @ExceptionHandler(JwtException.class)
-    public ResponseEntity<ApiError> handleJwtException(JwtException ex){
+    @ExceptionHandler(BadCredentialsException.class)
+    public ResponseEntity<ApiError> handleBadCredentials(BadCredentialsException ex){
         ApiError apiError = new ApiError(ex.getMessage(), HttpStatus.UNAUTHORIZED);
-        return new ResponseEntity<>(apiError, apiError.getStatus());
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(apiError);
     }
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiError> handleException(Exception ex){
         ApiError apiError = new ApiError("Internal Server Error : "+ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
-        return new ResponseEntity<>(apiError, apiError.getStatus());
-    }
-
-    @ExceptionHandler(BadCredentialsException.class)
-    public ResponseEntity<ApiError> handleBadCredentials(BadCredentialsException ex){
-        ApiError apiError = new ApiError("Invalid username or password", HttpStatus.UNAUTHORIZED);
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(apiError);
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(apiError);
     }
 
 }

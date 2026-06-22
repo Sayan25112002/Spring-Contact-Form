@@ -17,4 +17,6 @@ public class LoginResponseDto {
 
     private String refreshToken;
 
+    private String deviceId;
+
 }
