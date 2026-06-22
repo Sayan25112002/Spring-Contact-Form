@@ -46,7 +46,6 @@ public class ContactServiceImpl implements ContactService {
     private final ContactGroupMapper contactGroupMapper;
     private final ContactDetailMapper contactDetailMapper;
 
-
     @Override
     public PersonalDetailResponseDto createPersonalDetail(PersonalDetailRequestDto personalDetailRequestDto, Long memberId) {
         PersonalDetail personalDetail = personalDetailMapper.toPersonalDetail(personalDetailRequestDto);
