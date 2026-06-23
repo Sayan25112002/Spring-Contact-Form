@@ -12,19 +12,15 @@ import com.online.ContactBook.repository.AccessTokenRepository;
 import com.online.ContactBook.repository.MemberRepository;
 import com.online.ContactBook.security.AuthUtil;
 import com.online.ContactBook.service.AuthenticationService;
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.stereotype.Service;
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
 
 import java.util.List;
 import java.util.UUID;
@@ -69,7 +65,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     }
 
     @Override
-    public LoginResponseDto login(LoginRequestDto loginRequestDto) {
+    public LoginResponseDto login(LoginRequestDto loginRequestDto, String deviceId) {
         if(!memberRepository.existsByUsername(loginRequestDto.getUsername())){
             throw new BadCredentialsException("Email or Password is invalid/User Not Found");
         }
@@ -80,16 +76,12 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                 )
         );
         Member member = (Member) authentication.getPrincipal();
-        List<AccessToken> activeTokens = accessTokenRepository.findByMemberIdAndRevokedFalse(member.getId());
-        for(AccessToken oldAccessToken : activeTokens){
-            oldAccessToken.setRevoked(true);
+        String finalDeviceId;
+        if(deviceId!=null && !deviceId.isBlank() && accessTokenRepository.existsByMemberIdAndDeviceId(member.getId(),deviceId)){
+            finalDeviceId=deviceId;
         }
-        accessTokenRepository.saveAll(activeTokens);
-        String deviceId = member.getDeviceId();
-        if(deviceId==null){
-            deviceId = UUID.randomUUID().toString();
-            member.setDeviceId(deviceId);
-            memberRepository.save(member);
+        else {
+            finalDeviceId=UUID.randomUUID().toString();
         }
         String accessToken = authUtil.generateAccessToken(member);
         String refreshToken = authUtil.generateRefreshToken(member);
@@ -97,14 +89,14 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         accessToken1.setAccessToken(accessToken);
         accessToken1.setExpiresIn(authUtil.getExpirationDateFromToken(accessToken));
         accessToken1.setRevoked(false);
-        accessToken1.setDeviceId(deviceId);
+        accessToken1.setDeviceId(finalDeviceId);
         accessToken1.setMemberId(member.getId());
         accessTokenRepository.save(accessToken1);
-        return new LoginResponseDto(member.getId(),accessToken,refreshToken,deviceId);
+        return new LoginResponseDto(member.getId(),accessToken,refreshToken,finalDeviceId);
     }
 
     @Override
-    public RefreshTokenResponseDto refreshAccessToken(String refreshToken) {
+    public RefreshTokenResponseDto refreshAccessToken(String refreshToken, String deviceId) {
         String tokenType = authUtil.getTokenType(refreshToken);
         if(!"REFRESH".equals(tokenType)){
             throw new BadCredentialsException("Only Refresh Token is supported");
@@ -112,14 +104,26 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         if(refreshToken==null || authUtil.isTokenExpired(refreshToken)){
             throw new BadCredentialsException("Invalid Refresh Token");
         }
+        if(deviceId==null || deviceId.isBlank()){
+            throw new BadCredentialsException("Device ID is required");
+        }
         String userName = authUtil.getMemberNameFromToken(refreshToken);
         Member member = memberRepository.findByUsername(userName).orElseThrow(()->new UsernameNotFoundException("User not found"));
+        Boolean isDeviceRecognized = accessTokenRepository.existsByMemberIdAndDeviceId(member.getId(), deviceId);
+        if(!isDeviceRecognized){
+            throw new BadCredentialsException("Device ID is not recognized for this member");
+        }
+        List<AccessToken> activeTokens = accessTokenRepository.findByMemberIdAndRevokedFalse(member.getId());
+        for(AccessToken oldAccessToken : activeTokens){
+            oldAccessToken.setRevoked(true);
+        }
+        accessTokenRepository.saveAll(activeTokens);
         String newAccessToken = authUtil.generateAccessToken(member);
         AccessToken accessToken1 = new AccessToken();
         accessToken1.setAccessToken(newAccessToken);
         accessToken1.setExpiresIn(authUtil.getExpirationDateFromToken(newAccessToken));
         accessToken1.setRevoked(false);
-        accessToken1.setDeviceId(member.getDeviceId());
+        accessToken1.setDeviceId(deviceId);
         accessToken1.setMemberId(member.getId());
         accessTokenRepository.save(accessToken1);
         return new RefreshTokenResponseDto(newAccessToken);

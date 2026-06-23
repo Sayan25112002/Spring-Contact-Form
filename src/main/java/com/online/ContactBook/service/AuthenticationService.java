@@ -10,8 +10,8 @@ public interface AuthenticationService {
 
     SignUpResponseDto signUp(SignUpRequestDto memberRequestDto);
 
-    LoginResponseDto login(LoginRequestDto loginRequestDto);
+    LoginResponseDto login(LoginRequestDto loginRequestDto, String deviceId);
 
-    RefreshTokenResponseDto refreshAccessToken(String refreshToken);
+    RefreshTokenResponseDto refreshAccessToken(String refreshToken, String deviceId);
 
 }

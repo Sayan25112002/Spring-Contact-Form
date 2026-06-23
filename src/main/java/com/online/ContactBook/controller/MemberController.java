@@ -23,8 +23,9 @@ public class MemberController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<LoginResponseDto> login(@RequestBody LoginRequestDto loginRequestDto) {
-        LoginResponseDto loginResponseDto = authenticationService.login(loginRequestDto);
+    public ResponseEntity<LoginResponseDto> login(@RequestBody LoginRequestDto loginRequestDto,
+                                                  @RequestHeader(value = "Device-Id", required = false) String deviceId) {
+        LoginResponseDto loginResponseDto = authenticationService.login(loginRequestDto,deviceId);
         return ResponseEntity.ok()
                 .header("Authorization","Bearer "+loginResponseDto.getAccessToken())
                 .header("Refresh-Token",loginResponseDto.getRefreshToken())
@@ -33,8 +34,9 @@ public class MemberController {
     }
 
     @PostMapping("/refresh")
-    public ResponseEntity<RefreshTokenResponseDto> refresh(@RequestHeader("Refresh-Token")  String refreshToken) {
-        RefreshTokenResponseDto tokenResponseDto = authenticationService.refreshAccessToken(refreshToken);
+    public ResponseEntity<RefreshTokenResponseDto> refresh(@RequestHeader("Refresh-Token")  String refreshToken,
+                                                           @RequestHeader("Device-Id") String deviceId) {
+        RefreshTokenResponseDto tokenResponseDto = authenticationService.refreshAccessToken(refreshToken,deviceId);
         return ResponseEntity.ok()
                 .header("Authorization","Bearer "+tokenResponseDto.getAccessToken())
                 .body(tokenResponseDto);

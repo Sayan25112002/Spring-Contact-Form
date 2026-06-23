@@ -15,4 +15,6 @@ public class LoginRequestDto{
 
     private String password;
 
+    private String deviceId;
+
 }
