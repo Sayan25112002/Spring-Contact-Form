@@ -13,6 +13,7 @@ import com.online.ContactBook.repository.PersonalDetailRepository;
 import com.online.ContactBook.service.ContactService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
@@ -82,31 +83,31 @@ public class PersonalDetailController {
 
     @PreAuthorize("hasRole('ADMINISTRATOR')")
     @DeleteMapping("/deletePersonalDetail/{id}")
-    public void deletePersonalDetail(@PathVariable Long id) {
+    public ResponseEntity<String> deletePersonalDetail(@PathVariable Long id) {
         contactService.deletePersonalDetail(id);
-        System.out.println("Personal detail deleted successfully");
+        return ResponseEntity.ok("Personal detail deleted successfully");
     }
 
     @PreAuthorize("hasRole('ADMINISTRATOR')")
     @DeleteMapping("/deleteContactGroup/{id}")
-    public void deleteContactGroup(@PathVariable Long id) {
-            contactService.deleteContactGroupById(id);
-            System.out.println("Delete contact group successfully");
+    public ResponseEntity<String> deleteContactGroup(@PathVariable Long id) {
+        contactService.deleteContactGroupById(id);
+        return ResponseEntity.ok("Delete contact group successfully");
     }
 
 
     @PreAuthorize("hasRole('ADMINISTRATOR')")
     @DeleteMapping("/deleteContact/{id}")
-    public void deleteContact(@PathVariable Long id) {
+    public ResponseEntity<String> deleteContact(@PathVariable Long id) {
         contactService.deleteContactById(id);
-        System.out.println("Delete contact successfully");
+        return ResponseEntity.ok("Delete contact successfully");
     }
 
     @PreAuthorize("hasRole('ADMINISTRATOR')")
     @DeleteMapping("/deleteContactDetail/{id}")
-    public void deleteContactDetail(@PathVariable Long id) {
+    public ResponseEntity<String> deleteContactDetail(@PathVariable Long id) {
         contactService.deleteContactDetailById(id);
-        System.out.println("Delete contact detail successfully");
+        return ResponseEntity.ok("Delete contact detail successfully");
     }
 
 }

@@ -29,7 +29,7 @@ public class AuthUtil {
                 .claim("memberId",member.getId().toString())
                 .claim("role",member.getRole().toString())
                 .issuedAt(new Date())
-                .expiration(new Date(System.currentTimeMillis() + 1000L*60*2))
+                .expiration(new Date(System.currentTimeMillis() + 1000L*60*20))
                 .signWith(getSecretKey())
                 .compact();
     }

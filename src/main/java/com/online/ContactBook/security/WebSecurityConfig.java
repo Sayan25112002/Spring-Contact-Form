@@ -14,6 +14,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+import java.io.IOException;
+
 @Configuration
 @RequiredArgsConstructor
 public class WebSecurityConfig {
@@ -46,14 +48,64 @@ public class WebSecurityConfig {
                                 String token = authHeader.substring(7);
                                 AccessToken accessToken = accessTokenRepository
                                         .findByAccessToken(token)
-                                        .orElseThrow(()-> new EntityNotFoundException("AccessToken Not Found"));
-                                if(accessToken!=null){
+                                        .orElse(null);
+                                if(accessToken==null){
+                                    response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+                                    response.setContentType("application/json");
+                                    try {
+                                        response.getWriter().write("""
+                                                {
+                                                    "status":404,
+                                                    "message":"Access Token Not Found"
+                                                }
+                                                """);
+                                        response.flushBuffer();
+                                    } catch (IOException e) {
+                                        throw new RuntimeException(e);
+                                    }
+                                    return;
+                                }
+                                else{
+                                    if(accessToken.getRevoked()){
+                                        response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                                        response.setContentType("application/json");
+                                        try {
+                                            response.getWriter().write("""
+                                                     {
+                                                         "status":400,
+                                                         "message":"Access Token Already Revoked/Expired"
+                                                     }
+                                                     """);
+                                            response.flushBuffer();
+                                        }catch (IOException e) {
+                                            throw new RuntimeException(e);
+                                        }
+                                        return;
+                                    }
                                     accessToken.setRevoked(true);
                                     accessTokenRepository.save(accessToken);
                                 }
                             }
+                            else {
+                                response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                                response.setContentType("application/json");
+                                try {
+                                    response.getWriter().write("""
+                                            {
+                                                "status":"400",
+                                                "message":"Invalid Access Token"
+                                            }
+                                            """);
+                                    response.flushBuffer();
+                                } catch (IOException e) {
+                                    throw new RuntimeException(e);
+                                }
+                            }
                         })
                         .logoutSuccessHandler((request, response, authentication) -> {
+                            if(response.isCommitted()){
+                                return;
+                            }
                             SecurityContextHolder.clearContext();
                             response.setContentType("application/json");
                             response.setStatus(HttpServletResponse.SC_OK);
