@@ -1,6 +1,5 @@
 package com.online.ContactBook.dto.responseDto;
 
-import com.online.ContactBook.entity.Contact;
 import com.online.ContactBook.entity.type.ContactType;
 import lombok.*;
 

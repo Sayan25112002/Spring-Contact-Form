@@ -8,9 +8,6 @@ import com.online.ContactBook.dto.responseDto.ContactDetailResponseDto;
 import com.online.ContactBook.dto.responseDto.ContactGroupResponseDto;
 import com.online.ContactBook.dto.responseDto.ContactResponseDto;
 import com.online.ContactBook.dto.responseDto.PersonalDetailResponseDto;
-import com.online.ContactBook.entity.Contact;
-import com.online.ContactBook.entity.ContactDetail;
-import com.online.ContactBook.entity.ContactGroup;
 
 import java.io.IOException;
 import java.util.List;

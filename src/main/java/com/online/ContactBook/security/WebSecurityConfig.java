@@ -2,7 +2,6 @@ package com.online.ContactBook.security;
 
 import com.online.ContactBook.entity.AccessToken;
 import com.online.ContactBook.repository.AccessTokenRepository;
-import jakarta.persistence.EntityNotFoundException;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;

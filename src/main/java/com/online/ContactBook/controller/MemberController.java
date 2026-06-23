@@ -6,6 +6,7 @@ import com.online.ContactBook.dto.responseDto.LoginResponseDto;
 import com.online.ContactBook.dto.responseDto.RefreshTokenResponseDto;
 import com.online.ContactBook.dto.responseDto.SignUpResponseDto;
 import com.online.ContactBook.service.AuthenticationService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -18,12 +19,12 @@ public class MemberController {
     private final AuthenticationService authenticationService;
 
     @PostMapping("/signup")
-    public ResponseEntity<SignUpResponseDto> signup(@RequestBody SignUpRequestDto signUpRequestDto) {
+    public ResponseEntity<SignUpResponseDto> signup(@Valid @RequestBody SignUpRequestDto signUpRequestDto) {
         return ResponseEntity.ok().body(authenticationService.signUp(signUpRequestDto));
     }
 
     @PostMapping("/login")
-    public ResponseEntity<LoginResponseDto> login(@RequestBody LoginRequestDto loginRequestDto,
+    public ResponseEntity<LoginResponseDto> login(@Valid @RequestBody LoginRequestDto loginRequestDto,
                                                   @RequestHeader(value = "Device-Id", required = false) String deviceId) {
         LoginResponseDto loginResponseDto = authenticationService.login(loginRequestDto,deviceId);
         return ResponseEntity.ok()

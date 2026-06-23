@@ -19,7 +19,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -34,7 +33,6 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     private final AuthUtil authUtil;
     private final MemberRepository memberRepository;
     private final AccessTokenRepository accessTokenRepository;
-    private final AccessDeniedHandler accessDeniedHandler;
 
     @Override
     public SignUpResponseDto signUp(SignUpRequestDto signUpRequestDto) {

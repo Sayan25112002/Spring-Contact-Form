@@ -4,7 +4,6 @@ import com.online.ContactBook.dto.requestDto.ContactDetailRequestDto;
 import com.online.ContactBook.dto.responseDto.ContactDetailResponseDto;
 import com.online.ContactBook.entity.ContactDetail;
 import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
 
 import java.util.List;
 

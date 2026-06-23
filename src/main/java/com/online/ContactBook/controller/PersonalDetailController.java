@@ -8,8 +8,6 @@ import com.online.ContactBook.dto.responseDto.ContactDetailResponseDto;
 import com.online.ContactBook.dto.responseDto.ContactGroupResponseDto;
 import com.online.ContactBook.dto.responseDto.ContactResponseDto;
 import com.online.ContactBook.dto.responseDto.PersonalDetailResponseDto;
-import com.online.ContactBook.entity.PersonalDetail;
-import com.online.ContactBook.repository.PersonalDetailRepository;
 import com.online.ContactBook.service.ContactService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

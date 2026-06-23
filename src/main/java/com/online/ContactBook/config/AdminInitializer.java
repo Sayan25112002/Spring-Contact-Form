@@ -24,7 +24,7 @@ public class AdminInitializer {
                     .lastName("Administrator")
                     .username("ocb@domain.com")
                     .phone("1234567890")
-                    .password(passwordEncoder.encode("123456"))
+                    .password(passwordEncoder.encode("Ocb@123456"))
                     .role(Role.ADMINISTRATOR)
                     .build();
             memberRepository.save(admin);

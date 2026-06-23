@@ -3,7 +3,6 @@ package com.online.ContactBook.mapper;
 import com.online.ContactBook.dto.requestDto.PersonalDetailRequestDto;
 import com.online.ContactBook.dto.responseDto.PersonalDetailResponseDto;
 import com.online.ContactBook.entity.PersonalDetail;
-import jakarta.persistence.ManyToOne;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 

@@ -1,7 +1,5 @@
 package com.online.ContactBook.dto.responseDto;
 
-import com.online.ContactBook.entity.Contact;
-import com.online.ContactBook.entity.Member;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
