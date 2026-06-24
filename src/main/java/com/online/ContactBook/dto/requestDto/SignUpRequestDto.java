@@ -1,5 +1,7 @@
 package com.online.ContactBook.dto.requestDto;
 
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import lombok.*;
 
@@ -11,14 +13,22 @@ import lombok.*;
 @Setter
 public class SignUpRequestDto {
 
+    @NotBlank(message = "First Name is Required")
     private String firstName;
 
     private String middleName;
 
+    @NotBlank(message = "Last Name is Required")
     private String lastName;
 
+    @NotBlank(message = "Email is Required")
+    @Email(message = "Invalid Email Format")
     private String username;
 
+    @Pattern(
+            regexp = "^[6-9]\\d{9}$",
+            message = "Invalid Phone Number"
+    )
     private String phone;
 
     @Pattern(

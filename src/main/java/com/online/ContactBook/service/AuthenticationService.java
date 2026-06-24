@@ -5,12 +5,13 @@ import com.online.ContactBook.dto.requestDto.SignUpRequestDto;
 import com.online.ContactBook.dto.responseDto.LoginResponseDto;
 import com.online.ContactBook.dto.responseDto.RefreshTokenResponseDto;
 import com.online.ContactBook.dto.responseDto.SignUpResponseDto;
+import jakarta.servlet.http.HttpServletRequest;
 
 public interface AuthenticationService {
 
     SignUpResponseDto signUp(SignUpRequestDto memberRequestDto);
 
-    LoginResponseDto login(LoginRequestDto loginRequestDto, String deviceId);
+    LoginResponseDto login(LoginRequestDto loginRequestDto, String deviceId, HttpServletRequest request);
 
     RefreshTokenResponseDto refreshAccessToken(String refreshToken, String deviceId);
 

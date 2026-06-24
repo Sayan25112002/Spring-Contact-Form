@@ -6,21 +6,26 @@ import com.online.ContactBook.dto.responseDto.LoginResponseDto;
 import com.online.ContactBook.dto.responseDto.RefreshTokenResponseDto;
 import com.online.ContactBook.dto.responseDto.SignUpResponseDto;
 import com.online.ContactBook.entity.AccessToken;
+import com.online.ContactBook.entity.IpLoginAttempt;
 import com.online.ContactBook.entity.Member;
 import com.online.ContactBook.entity.type.Role;
 import com.online.ContactBook.repository.AccessTokenRepository;
+import com.online.ContactBook.repository.IpLoginRepository;
 import com.online.ContactBook.repository.MemberRepository;
 import com.online.ContactBook.security.AuthUtil;
 import com.online.ContactBook.service.AuthenticationService;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.LockedException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -33,6 +38,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     private final AuthUtil authUtil;
     private final MemberRepository memberRepository;
     private final AccessTokenRepository accessTokenRepository;
+    private final IpLoginRepository ipLoginRepository;
 
     @Override
     public SignUpResponseDto signUp(SignUpRequestDto signUpRequestDto) {
@@ -63,7 +69,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     }
 
     @Override
-    public LoginResponseDto login(LoginRequestDto loginRequestDto, String deviceId) {
+    public LoginResponseDto login(LoginRequestDto loginRequestDto, String deviceId, HttpServletRequest request) {
         if(!memberRepository.existsByUsername(loginRequestDto.getUsername())){
             throw new BadCredentialsException("Email or Password is invalid/User Not Found");
         }
@@ -81,6 +87,12 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         else {
             finalDeviceId=UUID.randomUUID().toString();
         }
+        accessTokenRepository
+                .findByMemberIdAndDeviceIdAndRevokedFalse(member.getId(), finalDeviceId)
+                .ifPresent(token->{
+                    token.setRevoked(true);
+                    accessTokenRepository.save(token);
+                });
         String accessToken = authUtil.generateAccessToken(member);
         String refreshToken = authUtil.generateRefreshToken(member);
         AccessToken accessToken1 = new AccessToken();

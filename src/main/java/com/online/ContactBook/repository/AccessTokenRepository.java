@@ -14,4 +14,7 @@ public interface AccessTokenRepository extends JpaRepository<AccessToken,Long> {
     List<AccessToken> findByMemberIdAndRevokedFalse(Long memberId);
 
     Boolean existsByMemberIdAndDeviceId(Long memberId, String deviceId);
+
+    Optional<AccessToken> findByMemberIdAndDeviceIdAndRevokedFalse(Long memberId, String deviceId);
+
 }

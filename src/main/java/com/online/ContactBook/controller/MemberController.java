@@ -6,6 +6,7 @@ import com.online.ContactBook.dto.responseDto.LoginResponseDto;
 import com.online.ContactBook.dto.responseDto.RefreshTokenResponseDto;
 import com.online.ContactBook.dto.responseDto.SignUpResponseDto;
 import com.online.ContactBook.service.AuthenticationService;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -25,8 +26,9 @@ public class MemberController {
 
     @PostMapping("/login")
     public ResponseEntity<LoginResponseDto> login(@Valid @RequestBody LoginRequestDto loginRequestDto,
-                                                  @RequestHeader(value = "Device-Id", required = false) String deviceId) {
-        LoginResponseDto loginResponseDto = authenticationService.login(loginRequestDto,deviceId);
+                                                  @RequestHeader(value = "Device-Id", required = false) String deviceId,
+                                                    HttpServletRequest request) {
+        LoginResponseDto loginResponseDto = authenticationService.login(loginRequestDto,deviceId,request);
         return ResponseEntity.ok()
                 .header("Authorization","Bearer "+loginResponseDto.getAccessToken())
                 .header("Refresh-Token",loginResponseDto.getRefreshToken())

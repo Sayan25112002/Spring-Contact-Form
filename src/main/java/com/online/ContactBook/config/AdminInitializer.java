@@ -26,6 +26,9 @@ public class AdminInitializer {
                     .phone("1234567890")
                     .password(passwordEncoder.encode("Ocb@123456"))
                     .role(Role.ADMINISTRATOR)
+                    .failedAttempts(0)
+                    .accountLocked(Boolean.FALSE)
+                    .lockTime(null)
                     .build();
             memberRepository.save(admin);
         }

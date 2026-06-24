@@ -4,6 +4,7 @@ import jakarta.persistence.EntityNotFoundException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.LockedException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -48,6 +49,12 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ApiError> handleBadCredentials(BadCredentialsException ex){
         ApiError apiError = new ApiError(ex.getMessage(), HttpStatus.UNAUTHORIZED);
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(apiError);
+    }
+
+    @ExceptionHandler(LockedException.class)
+    public ResponseEntity<ApiError> handleLockedException(LockedException ex){
+        ApiError apiError = new ApiError(ex.getMessage(), HttpStatus.LOCKED);
+        return ResponseEntity.status(HttpStatus.LOCKED).body(apiError);
     }
 
     @ExceptionHandler(Exception.class)

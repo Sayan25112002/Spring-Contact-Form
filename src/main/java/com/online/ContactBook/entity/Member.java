@@ -8,6 +8,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
 
@@ -44,6 +45,20 @@ public class Member implements UserDetails {
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private Role role;
+
+    @Column(nullable = false)
+    @Builder.Default
+    private Integer failedAttempts=0;
+
+    private LocalDateTime lockTime;
+
+    @Column(nullable = false)
+    @Builder.Default
+    private Boolean accountLocked=Boolean.FALSE;
+
+    @Column(nullable = false)
+    @Builder.Default
+    private Integer lockCount=0;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
