@@ -1,10 +1,9 @@
 package com.online.ContactBook.controller;
 
 import com.online.ContactBook.dto.requestDto.LoginRequestDto;
+import com.online.ContactBook.dto.requestDto.OtpVerifyRequestDto;
 import com.online.ContactBook.dto.requestDto.SignUpRequestDto;
-import com.online.ContactBook.dto.responseDto.LoginResponseDto;
-import com.online.ContactBook.dto.responseDto.RefreshTokenResponseDto;
-import com.online.ContactBook.dto.responseDto.SignUpResponseDto;
+import com.online.ContactBook.dto.responseDto.*;
 import com.online.ContactBook.service.AuthenticationService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
@@ -25,14 +24,19 @@ public class MemberController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<LoginResponseDto> login(@Valid @RequestBody LoginRequestDto loginRequestDto,
-                                                  @RequestHeader(value = "Device-Id", required = false) String deviceId,
-                                                    HttpServletRequest request) {
-        LoginResponseDto loginResponseDto = authenticationService.login(loginRequestDto,deviceId,request);
+    public ResponseEntity<LoginInitResponseDto> login(@Valid @RequestBody LoginRequestDto loginRequestDto,HttpServletRequest request) {
+        LoginInitResponseDto loginInitResponseDto = authenticationService.login(loginRequestDto,request);
+        return ResponseEntity.ok().body(loginInitResponseDto);
+    }
+
+    @PostMapping("/login/verify-otp")
+    public ResponseEntity<LoginResponseDto> verifyOtpAndLogin(@Valid @RequestBody OtpVerifyRequestDto otpVerifyRequestDto,
+                                                                  @RequestHeader(value = "Device-Id",required = false) String deviceId) {
+        LoginResponseDto loginResponseDto = authenticationService.verifyOtpAndLogin(otpVerifyRequestDto,deviceId);
         return ResponseEntity.ok()
                 .header("Authorization","Bearer "+loginResponseDto.getAccessToken())
-                .header("Refresh-Token",loginResponseDto.getRefreshToken())
-                .header("Device-ID",loginResponseDto.getDeviceId())
+                .header("Refresh-Token", loginResponseDto.getRefreshToken())
+                .header("Device-Id",loginResponseDto.getDeviceId())
                 .body(loginResponseDto);
     }
 
@@ -43,6 +47,11 @@ public class MemberController {
         return ResponseEntity.ok()
                 .header("Authorization","Bearer "+tokenResponseDto.getAccessToken())
                 .body(tokenResponseDto);
+    }
+
+    @GetMapping("/captcha")
+    public ResponseEntity<CaptchaResponseDto> getCaptcha() {
+        return ResponseEntity.ok(authenticationService.generateCaptcha());
     }
 
 }

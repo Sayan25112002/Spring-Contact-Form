@@ -1,10 +1,9 @@
 package com.online.ContactBook.service.implementation;
 
 import com.online.ContactBook.dto.requestDto.LoginRequestDto;
+import com.online.ContactBook.dto.requestDto.OtpVerifyRequestDto;
 import com.online.ContactBook.dto.requestDto.SignUpRequestDto;
-import com.online.ContactBook.dto.responseDto.LoginResponseDto;
-import com.online.ContactBook.dto.responseDto.RefreshTokenResponseDto;
-import com.online.ContactBook.dto.responseDto.SignUpResponseDto;
+import com.online.ContactBook.dto.responseDto.*;
 import com.online.ContactBook.entity.AccessToken;
 import com.online.ContactBook.entity.IpLoginAttempt;
 import com.online.ContactBook.entity.Member;
@@ -12,7 +11,7 @@ import com.online.ContactBook.entity.type.Role;
 import com.online.ContactBook.repository.AccessTokenRepository;
 import com.online.ContactBook.repository.IpLoginRepository;
 import com.online.ContactBook.repository.MemberRepository;
-import com.online.ContactBook.security.AuthUtil;
+import com.online.ContactBook.security.*;
 import com.online.ContactBook.service.AuthenticationService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -39,6 +38,10 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     private final MemberRepository memberRepository;
     private final AccessTokenRepository accessTokenRepository;
     private final IpLoginRepository ipLoginRepository;
+    private final CaptchaService captchaService;
+    private final OtpService otpService;
+    private final IpRateLimitService ipRateLimitService;
+    private final BruteForceProtectionService bruteForceProtectionService;
 
     @Override
     public SignUpResponseDto signUp(SignUpRequestDto signUpRequestDto) {
@@ -69,32 +72,54 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     }
 
     @Override
-    public LoginResponseDto login(LoginRequestDto loginRequestDto, String deviceId, HttpServletRequest request) {
-        if(!memberRepository.existsByUsername(loginRequestDto.getUsername())){
-            throw new BadCredentialsException("Email or Password is invalid/User Not Found");
+    public LoginInitResponseDto login(LoginRequestDto loginRequestDto, HttpServletRequest request) {
+        String ip = ipRateLimitService.resolveIp(request);
+        ipRateLimitService.evaluateBeforeLogin(ip);
+        captchaService.validateCaptcha(loginRequestDto.getCaptchaId(),loginRequestDto.getCaptchaAnswer());
+        Member member = memberRepository.findByUsername(loginRequestDto.getUsername()).orElse(null);
+        if(member==null){
+            ipRateLimitService.onLoginFailed(ip);
+            throw new BadCredentialsException("Invalid username or password");
         }
-        Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                        loginRequestDto.getUsername(),
-                        loginRequestDto.getPassword()
-                )
+        bruteForceProtectionService.evaluateBeforeLogin(member);
+        try{
+            authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(
+                            loginRequestDto.getUsername(),
+                            loginRequestDto.getPassword()
+                    )
+            );
+        }catch (BadCredentialsException ex){
+            bruteForceProtectionService.onLoginFailed(member);
+            ipRateLimitService.onLoginFailed(ip);
+            throw ex;
+        }
+        bruteForceProtectionService.onLoginSuccess(member);
+        ipRateLimitService.onLoginSuccess(ip);
+        String preAuthToken = otpService.generateOtp(member.getUsername());
+        return new LoginInitResponseDto(preAuthToken,"Credentials Verified. OTP sent - Please verify to complete login.");
+    }
+
+    @Override
+    public LoginResponseDto verifyOtpAndLogin(OtpVerifyRequestDto otpVerifyRequestDto, String deviceIdHeader) {
+        String userName = otpService.validateOtpAndGetUserName(
+                otpVerifyRequestDto.getPreAuthToken(),
+                otpVerifyRequestDto.getOtp()
         );
-        Member member = (Member) authentication.getPrincipal();
+        Member member = memberRepository.findByUsername(userName).orElseThrow(()->new UsernameNotFoundException("User not found"));
         String finalDeviceId;
-        if(deviceId!=null && !deviceId.isBlank() && accessTokenRepository.existsByMemberIdAndDeviceId(member.getId(),deviceId)){
-            finalDeviceId=deviceId;
-        }
-        else {
+        if(deviceIdHeader!=null&&!deviceIdHeader.isBlank()&&accessTokenRepository.existsByMemberIdAndDeviceId(member.getId(),deviceIdHeader)){
+            finalDeviceId=deviceIdHeader;
+        }else{
             finalDeviceId=UUID.randomUUID().toString();
         }
-        accessTokenRepository
-                .findByMemberIdAndDeviceIdAndRevokedFalse(member.getId(), finalDeviceId)
-                .ifPresent(token->{
-                    token.setRevoked(true);
-                    accessTokenRepository.save(token);
+        accessTokenRepository.findByMemberIdAndDeviceIdAndRevokedFalse(member.getId(),finalDeviceId)
+                .ifPresent(accessToken -> {
+                    accessToken.setRevoked(true);
+                    accessTokenRepository.save(accessToken);
                 });
-        String accessToken = authUtil.generateAccessToken(member);
-        String refreshToken = authUtil.generateRefreshToken(member);
+        String accessToken=authUtil.generateAccessToken(member);
+        String refreshToken=authUtil.generateRefreshToken(member);
         AccessToken accessToken1 = new AccessToken();
         accessToken1.setAccessToken(accessToken);
         accessToken1.setExpiresIn(authUtil.getExpirationDateFromToken(accessToken));
@@ -139,5 +164,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         return new RefreshTokenResponseDto(newAccessToken);
     }
 
-
+    @Override
+    public CaptchaResponseDto generateCaptcha() {
+        return captchaService.generateCaptcha();
+    }
 }

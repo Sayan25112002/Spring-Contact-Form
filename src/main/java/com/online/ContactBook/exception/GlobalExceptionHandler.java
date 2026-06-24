@@ -57,6 +57,24 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.LOCKED).body(apiError);
     }
 
+    @ExceptionHandler(IpBlockedException.class)
+    public ResponseEntity<ApiError> handleIpBlockedException(IpBlockedException ex){
+        ApiError apiError = new ApiError(ex.getMessage(), HttpStatus.FORBIDDEN);
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(apiError);
+    }
+
+    @ExceptionHandler(InvalidCaptchaException.class)
+    public ResponseEntity<ApiError> handleInvalidCaptchaException(InvalidCaptchaException ex){
+        ApiError apiError = new ApiError(ex.getMessage(), HttpStatus.FORBIDDEN);
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(apiError);
+    }
+
+    @ExceptionHandler(InvalidOtpException.class)
+    public ResponseEntity<ApiError> handleInvalidOtpException(InvalidOtpException ex){
+        ApiError apiError = new ApiError(ex.getMessage(), HttpStatus.FORBIDDEN);
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(apiError);
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiError> handleException(Exception ex){
         ApiError apiError = new ApiError("Internal Server Error : "+ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
