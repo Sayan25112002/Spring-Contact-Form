@@ -88,20 +88,20 @@ public class CaptchaService {
             throw new RuntimeException("Failed to generate captcha image");
         }
         Captcha captcha = Captcha.builder()
-                .id(UUID.randomUUID().toString())
+                .passKey(UUID.randomUUID().toString())
                 .answer(captchaText)
                 .image(imageBase64)
                 .expiresAt(LocalDateTime.now().plusMinutes(5))
                 .build();
         captchaRepository.save(captcha);
-        return new CaptchaResponseDto(captcha.getId(),captcha.getImage());
+        return new CaptchaResponseDto(captcha.getPassKey(),captcha.getImage());
     }
 
-    public void validateCaptcha(String captchaId, String userAnswer){
-        if(captchaId==null||captchaId.isBlank()||userAnswer==null||userAnswer.isBlank()){
+    public void validateCaptcha(String passKey, String userAnswer){
+        if(passKey==null||passKey.isBlank()||userAnswer==null||userAnswer.isBlank()){
             throw new InvalidCaptchaException("Captcha is Required");
         }
-        Captcha captcha = captchaRepository.findById(captchaId).orElseThrow(()->new InvalidCaptchaException("Captcha Expired Or Invalid"));
+        Captcha captcha = captchaRepository.findByPassKey(passKey).orElseThrow(()->new InvalidCaptchaException("Captcha Expired Or Invalid"));
         if(captcha.getExpiresAt().isBefore(LocalDateTime.now())){
             throw new InvalidCaptchaException("Captcha Expired,Please Request a New One");
         }

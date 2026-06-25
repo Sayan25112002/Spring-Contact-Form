@@ -1,9 +1,6 @@
 package com.online.ContactBook.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Lob;
+import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -17,7 +14,11 @@ import java.time.LocalDateTime;
 public class Captcha {
 
     @Id
-    private String id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(unique = true, nullable = false)
+    private String passKey;
 
     @Column(nullable = false)
     private String answer;

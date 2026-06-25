@@ -17,7 +17,7 @@ public class LoginRequestDto{
 
     private String deviceId;
 
-    private String captchaId;
+    private String passKey;
 
     private String captchaAnswer;
 

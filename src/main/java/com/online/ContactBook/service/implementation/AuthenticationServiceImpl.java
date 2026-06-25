@@ -75,7 +75,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     public LoginInitResponseDto login(LoginRequestDto loginRequestDto, HttpServletRequest request) {
         String ip = ipRateLimitService.resolveIp(request);
         ipRateLimitService.evaluateBeforeLogin(ip);
-        captchaService.validateCaptcha(loginRequestDto.getCaptchaId(),loginRequestDto.getCaptchaAnswer());
+        captchaService.validateCaptcha(loginRequestDto.getPassKey(),loginRequestDto.getCaptchaAnswer());
         Member member = memberRepository.findByUsername(loginRequestDto.getUsername()).orElse(null);
         if(member==null){
             ipRateLimitService.onLoginFailed(ip);
