@@ -13,6 +13,6 @@ public class CaptchaResponseDto {
 
     private String captchaId;
 
-    private String question;
+    private String imageUrl;
 
 }

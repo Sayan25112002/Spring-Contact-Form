@@ -49,6 +49,7 @@ public class BruteForceProtectionService {
         if(member.getFailedAttempts()!=0||Boolean.TRUE.equals(member.getAccountLocked())) {
             member.setFailedAttempts(0);
             member.setAccountLocked(false);
+            member.setLockCount(0);
             member.setLockTime(null);
             memberRepository.save(member);
         }

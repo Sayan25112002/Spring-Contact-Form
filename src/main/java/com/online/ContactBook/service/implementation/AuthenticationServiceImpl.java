@@ -166,6 +166,6 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
     @Override
     public CaptchaResponseDto generateCaptcha() {
-        return captchaService.generateCaptcha();
+        return captchaService.generateImageCaptcha();
     }
 }
