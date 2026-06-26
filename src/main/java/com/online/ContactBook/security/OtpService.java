@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Random;
 import java.util.UUID;
 
@@ -19,6 +20,15 @@ public class OtpService {
     private final OtpRepository otpRepository;
 
     public String generateOtp(String username){
+        List<OtpToken> otpTokenList = otpRepository.findAll();
+        for(OtpToken otpToken : otpTokenList){
+            otpToken.setIsValid(false);
+            otpToken.setExpiresAt(LocalDateTime.now().plusSeconds(30));
+            if(otpToken.getNow().isAfter(otpToken.getExpiresAt())){
+                otpRepository.delete(otpToken);
+            }
+        }
+        otpRepository.saveAll(otpTokenList);
         String otp = String.format("%06d",new Random().nextInt(1_00_000));
         String preAuthToken = UUID.randomUUID().toString();
         OtpToken otpToken = OtpToken.builder()
@@ -37,14 +47,16 @@ public class OtpService {
         if(preAuthToken==null || preAuthToken.isBlank()){
             throw new InvalidOtpException("Login Session is Invalid, Please Login Again");
         }
-        OtpToken otpToken = otpRepository.findById(preAuthToken)
+        OtpToken otpToken = otpRepository.findByPreAuthToken(preAuthToken)
                 .orElseThrow(() -> new InvalidOtpException("Login Session Expired, Please Login Again"));
-        if(otpToken.getExpiresAt().isBefore(LocalDateTime.now())){
+        if(otpToken.getExpiresAt().isBefore(LocalDateTime.now())||(otpToken.getIsValid().equals(false))){
             otpRepository.delete(otpToken);
             throw new InvalidOtpException("OTP expired, Please Login Again");
         }
         if(otpToken.getAttempts()>=5){
-            otpRepository.delete(otpToken);
+            otpToken.setIsValid(false);
+            otpToken.setExpiresAt(LocalDateTime.now().plusSeconds(30));
+            otpRepository.save(otpToken);
             throw new InvalidOtpException("Too many incorrect Otp Request, Please Login Again");
         }
         if(!otpToken.getOtp().equals(otp)){
@@ -52,7 +64,9 @@ public class OtpService {
             otpRepository.save(otpToken);
             throw new InvalidOtpException("Incorrect Otp");
         }
-        otpRepository.delete(otpToken);
+        otpToken.setIsValid(false);
+        otpToken.setExpiresAt(LocalDateTime.now().plusSeconds(30));
+        otpRepository.save(otpToken);
         return otpToken.getUsername();
     }
 }

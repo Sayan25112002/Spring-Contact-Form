@@ -1,12 +1,11 @@
 package com.online.ContactBook.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.web.bind.annotation.GetMapping;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Entity
 @Getter
@@ -17,13 +16,26 @@ import java.time.LocalDateTime;
 public class OtpToken {
 
     @Id
-    private String preAuthToken;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(unique = true, nullable = false)
+    @Builder.Default
+    private String preAuthToken= UUID.randomUUID().toString();
 
     @Column(nullable = false)
     private String username;
 
     @Column(nullable = false)
     private String otp;
+
+    @Column(nullable=false)
+    @Builder.Default
+    private Boolean isValid=true;
+
+    @Column(nullable = false)
+    @Builder.Default
+    private LocalDateTime now = LocalDateTime.now();
 
     @Column(nullable = false)
     private LocalDateTime expiresAt;

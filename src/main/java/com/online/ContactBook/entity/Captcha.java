@@ -36,6 +36,10 @@ public class Captcha {
 
     @Column(nullable = false)
     @Builder.Default
+    private LocalDateTime now = LocalDateTime.now();
+
+    @Column(nullable = false)
+    @Builder.Default
     private Boolean isValid=true;
 
     @Column
